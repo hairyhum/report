@@ -23,10 +23,12 @@
 
 -type worker() :: pid().
 
--type table() :: items | unique_items | lists
-                 | users | devices | user_groups | user_usergroup | send_plans
+-type table() :: devices | items_bought | items_added
                  | {table(), join, table(), on, {column_spec(), comp(), column_spec()}}.
 -type column_spec() :: {table(), term()}.
+
+-type modifier() :: distinct | 'all' | undefined.
+-type column_spec_ext() :: column_spec() | {table(), modifier(), term()}.
 
 -type filter() :: [filter_cond()].
 -type filter_cond() :: {atom(), term()} | {atom(), in, list()} | {atom(), comp(), term()}.
@@ -40,7 +42,7 @@
 
 -export_type([table/0]).
 
--export_type([column_spec/0, filter/0, returns/0, update_filter/0, values/0, worker/0]).
+-export_type([column_spec/0, column_spec_ext/0, filter/0, returns/0, update_filter/0, values/0, worker/0]).
 
 -define(POOL_NAME, postgres).
 -define(TIMEOUT, 5000).

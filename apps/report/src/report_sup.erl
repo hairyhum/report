@@ -25,9 +25,6 @@ start_link() ->
 
 init([]) ->
   {ok, FrontConfigPid} = report_config:start_link(),
-  % Plan scheduling
-  CronSup = {ecrn_sup, {ecrn_sup, start_link, []}, permanent, infinity, supervisor, [ecrn_sup]},
-
   % DB
   DBSizeArgs = report_config:get_config(postgres_pool, [{size, 10}, {max_overflow, 20}]),
   DBWorkerArgs = report_config:get_config(postgres, []),

@@ -1,0 +1,8 @@
+CHANGELOG
+Gemfile.lock
+apps/report/ebin/
+deps/
+dialyzer.ignore-warnings
+rel/report/
+report.plt
+

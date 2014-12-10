@@ -90,7 +90,7 @@ fetch_column_by(Worker, {Table, Column}, Filter, Timeout) when is_atom(Column); 
   Result = equery(Worker, Query, WhereParams, Timeout),
   parse_scalar_result_list(Result).
 
--spec fetch_multiple_columns_by(db:worker(), db:column_spec(), db:filter(), plist(), integer()) -> {ok, plist()}.
+-spec fetch_multiple_columns_by(db:worker(), db:column_spec_ext(), db:filter(), plist(), integer()) -> {ok, plist()}.
 fetch_multiple_columns_by(Worker, {Table, Columns}, Filter, Extra, Timeout) when is_list(Columns) ->
   fetch_multiple_columns_by(Worker, {Table, undefined, Columns}, Filter, Extra, Timeout);
 fetch_multiple_columns_by(Worker, {Table, Modifier, Columns}, Filter, Extra, Timeout) when is_list(Columns) ->

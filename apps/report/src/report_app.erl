@@ -8,8 +8,6 @@
 start() ->
   lager:start(),
   qdate:start(),
-  inets:start(),
-  push_service:start(),
   application:start(crypto),
   application:start(sasl),
   application:start(xmerl),
