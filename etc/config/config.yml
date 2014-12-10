@@ -1,4 +1,5 @@
 config:
+  migration_folder: "etc/config/migrations"
   log_memory: false
   postgres:
     driver: "pdo_pgsql"

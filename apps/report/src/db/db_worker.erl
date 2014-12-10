@@ -1,17 +1,18 @@
 -module(db_worker).
--include("types.hrl").
 -include_lib("epgsql/include/pgsql.hrl").
 -behaviour(poolboy_worker).
 -behaviour(gen_server).
 -define(CONNECTION_TIMEOUT, 5000).
 
 -record(state, {conn}).
-
+-type plist() :: [{atom(), term()}].
 -export([start_link/1]).
 -export([transaction/3]).
 -export([insert/5, update/4, delete/4]).
 -export([fetch_column_by/4, fetch_multiple_columns_by/5, find_all_by/4, find_one_by/4, fetch_raw/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([equery/4]).
+-export([squery/3]).
 
 start_link(Args) ->
   gen_server:start_link(?MODULE, Args, []).
@@ -90,13 +91,11 @@ fetch_column_by(Worker, {Table, Column}, Filter, Timeout) when is_atom(Column); 
   Result = equery(Worker, Query, WhereParams, Timeout),
   parse_scalar_result_list(Result).
 
--spec fetch_multiple_columns_by(db:worker(), db:column_spec_ext(), db:filter(), plist(), integer()) -> {ok, plist()}.
+-spec fetch_multiple_columns_by(db:worker(), db:column_spec(), db:filter(), plist(), integer()) -> {ok, plist()}.
 fetch_multiple_columns_by(Worker, {Table, Columns}, Filter, Extra, Timeout) when is_list(Columns) ->
-  fetch_multiple_columns_by(Worker, {Table, undefined, Columns}, Filter, Extra, Timeout);
-fetch_multiple_columns_by(Worker, {Table, Modifier, Columns}, Filter, Extra, Timeout) when is_list(Columns) ->
   {Where, WhereParams} = prepare_filters(Filter),
   ExtraQ = case Extra of [] -> []; _ -> [Extra] end,
-  Query = list_to_tuple([select, Modifier, Columns, {from, Table}, {where, Where}] ++ ExtraQ),
+  Query = list_to_tuple([select, Columns, {from, Table}, {where, Where}] ++ ExtraQ),
   Result = equery(Worker, Query, WhereParams, Timeout),
   parse_result_list(Result).
 
@@ -215,11 +214,10 @@ unzip_in_cond(Filter) ->
     fun({_Key, in, _List}) -> true;
        ({_Key, 'is', null}) -> true;
        ({_Key, 'is not', null}) -> true;
+       ({_Key, '&&', _Set}) -> true;
        ({'or', _}) -> true;
        ({'and', _}) -> true;
        ({'not', 'exists', _List}) -> true;
-       ({{_, delete_timestamp}, '=', _Val}) -> true;
-       ({delete_timestamp, '=', _Val}) -> true;
        (_) -> false
     end,
     Filter),
@@ -233,7 +231,7 @@ unzip_in_cond(Filter) ->
   }.
 
 equery(Worker, Query, Params, Timeout) when is_binary(Query) ->
-  {Time, Res} = timer:tc(gen_server, call, [Worker, {equery, Query, Params}, Timeout]),
+  {Time, Res} = timer:tc(gen_server, call, [Worker, {equery, Query, Params, Timeout}, Timeout]),
   % lager:debug("TIMING DB query ~tp~n took ~tp ms~n trace ~p~n", [Query, Time / 1000, catch error(trace)]),
   case Res of
     {error, Err} -> lager:error("DB ERROR: ~tp~n In Query ~tp~n Params ~p~n", [Err, Query, Params]);
@@ -246,14 +244,17 @@ equery(Worker, Stmt, Params, Timeout) ->
 
 squery(Worker, Sql, Timeout) ->
   Query = sqerl:sql(Sql, true),
-  gen_server:call(Worker, {squery, Query}, Timeout).
+  gen_server:call(Worker, {squery, Query, Timeout}, Timeout).
 
 %% Gen server behaviour
 
-handle_call({squery, Query}, _From, #state{conn=Conn}=State) ->
-  {reply, pgsql:squery(Conn, Query), State};
-handle_call({equery, Query, Params}, _From, #state{conn=Conn}=State) ->
-  {ok, Tref} = timer:exit_after(?CONNECTION_TIMEOUT + 2000, connection_hang),
+handle_call({squery, Query, Timeout}, _From, #state{conn=Conn}=State) ->
+  {ok, Tref} = timer:exit_after(Timeout - 200, connection_hang),
+  Res = pgsql:squery(Conn, Query),
+  timer:cancel(Tref),
+  {reply, Res, State};
+handle_call({equery, Query, Params, Timeout}, _From, #state{conn=Conn}=State) ->
+  {ok, Tref} = timer:exit_after(Timeout - 1000, connection_hang),
   Res = pgsql:equery(Conn, Query, Params),
   timer:cancel(Tref),
   {reply, Res, State};

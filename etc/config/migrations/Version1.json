@@ -1,0 +1,13 @@
+{
+  "up":[
+    "CREATE TABLE devices(client_id varchar UNIQUE NOT NULL PRIMARY KEY, os_name varchar, os_version varchar, app_id varchar, app_version varchar, language varchar NOT NULL, user_id varchar NOT NULL, create_timestamp timestamp NOT NULL, update_timestamp timestamp NOT NULL);",
+    "CREATE INDEX devices_client_id ON devices(client_id);",
+    "CREATE TABLE items_added(item_id varchar UNIQUE NOT NULL PRIMARY KEY, client_id varchar NOT NULL, title varchar NOT NULL, amount varchar, time integer NOT NULL, location point, ip inet, list_id varchar NOT NULL, create_timestamp timestamp NOT NULL, update_timestamp timestamp NOT NULL);",
+    "CREATE TABLE items_bought(LIKE items_added);"
+  ],
+  "down":[
+    "DROP TABLE devices;",
+    "DROP TABLE items_added;",
+    "DROP TABLE items_bought;"
+  ]
+}

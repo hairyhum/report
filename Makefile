@@ -79,10 +79,11 @@ attach:
 test:
 	./rebar ct skip_deps=true
 
-reload: compile
+reload: 
+	./rebar compile skip_deps=true
 	cp apps/$(APP_NAME)/ebin/* rel/$(APP_NAME)/lib/$(APP_NAME)-1/ebin
 	cp apps/$(APP_NAME)/include/* rel/$(APP_NAME)/lib/$(APP_NAME)-1/include
-	ls apps/$(APP_NAME)/src/*.erl | cut -d. -f1 | cut -d/ -f4 | xargs escript apps/$(APP_NAME)/src/reload_modules.escript 
+	ls apps/$(APP_NAME)/ebin/*.beam | cut -d. -f1 | cut -d/ -f4 | xargs escript apps/$(APP_NAME)/src/reload_modules.escript 
 
 restart_app: reload
 	escript apps/$(APP_NAME)/src/restart_app.escript
@@ -102,3 +103,6 @@ deploy_staging:
 
 deploy_production:
 	bundle exec cap deploy target=master
+
+migrate:
+	escript migrate.escript migrate
