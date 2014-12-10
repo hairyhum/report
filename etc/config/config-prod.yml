@@ -1,0 +1,9 @@
+config:
+  postgres:
+    driver: "pdo_pgsql"
+    user: "buymeapie_rw"
+    password: "buymeapie_pw"
+    host: "localhost"
+    port: "5432"
+    dbname: "buymeapie_report"
+

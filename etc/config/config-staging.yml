@@ -1,0 +1,7 @@
+config:
+  postgres:
+    user: "buymeapie_rw"
+    password: "qeWOf1mDGvKf"
+    host: "192.168.144.75"
+    port: "5433"
+    dbname: "buymeapie_report"

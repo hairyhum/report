@@ -1,0 +1,11 @@
+config:
+  log_memory: false
+  postgres:
+    driver: "pdo_pgsql"
+    user: "postgres"
+    password: ""
+    host: "localhost"
+    port: "5432"
+    dbname: "buymeapie_report"
+  req_timeout: 70
+

@@ -1,0 +1,1 @@
+-compile({parse_transform, rec2json}).

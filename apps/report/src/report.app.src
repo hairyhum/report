@@ -1,0 +1,16 @@
+{application, report,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  compiler,
+                  syntax_tools,
+                  lager,
+                  qdate
+                 ]},
+  {mod, { report_app, []}},
+  {env, []}
+ ]}.

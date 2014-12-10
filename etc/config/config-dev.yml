@@ -1,0 +1,6 @@
+config:
+  postgres:
+    user: "buymeapie_rw"
+    password: "buymeapie_pw"
+    dbname: "buymeapie_report"
+    host: "pgpool.buymeapie.corp"

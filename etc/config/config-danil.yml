@@ -1,0 +1,4 @@
+config:
+  postgres:
+    password: "danniill"
+    dbname: "baton_report"

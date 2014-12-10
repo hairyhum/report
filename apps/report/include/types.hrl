@@ -1,0 +1,6 @@
+-type plist() :: [{term(), term()}].
+-type alist() :: [{atom(), term()}].
+-type alist(Type) :: [{atom(), Type}].
+-type blist() :: [{binary(), term()}].
+-type blist(Type) :: [{binary(), Type}].
+-type lang() :: binary().
