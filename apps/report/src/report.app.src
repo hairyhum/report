@@ -9,6 +9,8 @@
                   compiler,
                   syntax_tools,
                   lager,
+                  ranch,
+                  cowboy,
                   qdate
                  ]},
   {mod, { report_app, []}},

@@ -1,5 +1,5 @@
 -module(db_worker).
--include_lib("epgsql/include/pgsql.hrl").
+-include_lib("epgsql/include/epgsql.hrl").
 -behaviour(poolboy_worker).
 -behaviour(gen_server).
 -define(CONNECTION_TIMEOUT, 5000).
@@ -30,7 +30,7 @@ init(Args) ->
   Password = proplists:get_value(password, Args),
   Database = proplists:get_value(dbname, Args),
   Timeout = proplists:get_value(timeout, Args, ?CONNECTION_TIMEOUT),
-  case pgsql:connect(Host, User, Password, [{port, Port},{database, Database}, {timeout, Timeout}]) of
+  case epgsql:connect(Host, User, Password, [{port, Port},{database, Database}, {timeout, Timeout}]) of
     {ok, Conn} -> {ok, #state{conn=Conn}};
     {error, Err} -> {stop, {connection_failed, Err}}
   end.
@@ -232,7 +232,7 @@ unzip_in_cond(Filter) ->
 
 equery(Worker, Query, Params, Timeout) when is_binary(Query) ->
   {Time, Res} = timer:tc(gen_server, call, [Worker, {equery, Query, Params, Timeout}, Timeout]),
-  % lager:debug("TIMING DB query ~tp~n took ~tp ms~n trace ~p~n", [Query, Time / 1000, catch error(trace)]),
+  % lager:debug("TIMING DB query ~tp~n PARAMS: ~tp~n took ~tp ms~n trace ~p~n", [Query, Params, Time / 1000, catch error(trace)]),
   case Res of
     {error, Err} -> lager:error("DB ERROR: ~tp~n In Query ~tp~n Params ~p~n", [Err, Query, Params]);
     _ -> ok
@@ -250,12 +250,12 @@ squery(Worker, Sql, Timeout) ->
 
 handle_call({squery, Query, Timeout}, _From, #state{conn=Conn}=State) ->
   {ok, Tref} = timer:exit_after(Timeout - 200, connection_hang),
-  Res = pgsql:squery(Conn, Query),
+  Res = epgsql:squery(Conn, Query),
   timer:cancel(Tref),
   {reply, Res, State};
 handle_call({equery, Query, Params, Timeout}, _From, #state{conn=Conn}=State) ->
   {ok, Tref} = timer:exit_after(Timeout - 1000, connection_hang),
-  Res = pgsql:equery(Conn, Query, Params),
+  Res = epgsql:equery(Conn, Query, Params),
   timer:cancel(Tref),
   {reply, Res, State};
 handle_call(_Request, _From, State) ->
@@ -268,7 +268,7 @@ handle_info(_Info, State) ->
   {noreply, State}.
 
 terminate(_Reason, #state{conn=Conn}) ->
-  ok = pgsql:close(Conn),
+  ok = epgsql:close(Conn),
   ok.
 
 code_change(_OldVsn, State, _Extra) ->

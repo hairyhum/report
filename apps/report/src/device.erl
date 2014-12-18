@@ -1,6 +1,11 @@
 -module(device).
 
--export([find_by_client_id/1, create/2, update/2]).
+-export([
+  find_by_client_id/1,
+  create/2,
+  update/2,
+  to_list/1
+  ]).
 
 -record(device, {
   client_id,

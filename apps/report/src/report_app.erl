@@ -11,6 +11,7 @@ start() ->
   application:start(crypto),
   application:start(sasl),
   application:start(xmerl),
+  application:start(cowboy),
   application:start(report).
 
 
@@ -19,16 +20,19 @@ start() ->
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+  Dispatch = [
+    {'_', [],[
+      {[<<"action">>, client_id, action, item_id], [], action_handler, []},
+      {[<<"device">>, client_id], [], device_handler, []},
+      {[<<"info">>, <<"actions">>, action], [], action_info_handler, []}
+    ]}
+  ],
   SupStarted = report_sup:start_link(),
+  cowboy:start_http(report_listener, 100,
+    [{port, 8080}],
+    [{env, [{dispatch, Dispatch}]}]),
   file:write_file("pid.pid", os:getpid()),
   SupStarted.
 
 stop(_State) ->
-  % cowboy:stop_listener(php_listener),
   ok.
-% pgsql:connect("localhost", ["postgres"], ["danniill"], [{database, "baton"}]).
-
-% start_http(Ref, NbAcceptors, TransOpts, ProtoOpts)
-%     when is_integer(NbAcceptors), NbAcceptors > 0 ->
-%   ranch:start_listener(Ref, NbAcceptors,
-%     ranch_tcp, TransOpts, baton_protocol, ProtoOpts).

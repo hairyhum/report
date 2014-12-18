@@ -19,7 +19,7 @@ terminate(_,_,_) -> ok.
 add_action(Req, State) ->
   {Action, _} = cowboy_req:binding(action, Req),
   {ClientId, _} = cowboy_req:binding(client_id, Req),
-  {ItemId, _} = cowboy_req:binding(itemId, Req),
+  {ItemId, _} = cowboy_req:binding(item_id, Req),
   if 
     ClientId == undefined; Action == undefined; ItemId == undefined ->
       req:reply(404, Req, State);

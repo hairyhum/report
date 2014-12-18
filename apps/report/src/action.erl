@@ -1,6 +1,6 @@
 -module(action).
 
--export([add_action/4]).
+-export([add_action/4, table/1]).
 
 -type blist() :: [{binary(), term()}].
 -type alist() :: [{atom(), term()}].
@@ -19,7 +19,7 @@ get_valid_data(Data) ->
       ({<<"time">>, Val}) -> {true, {time, Val}};
       ({<<"ip">>, Val}) -> {true, {ip, Val}};
       ({<<"list_id">>, Val}) -> {true, {list_id, Val}};
-      ({<<"location">>, Val}) -> {true, {location, {proplists:get_value(<<"latitude">>, Val), proplists:get_value(<<"longitude">>, Val)}}};
+      ({<<"location">>, Val}) -> {true, {location, {point, '2d', proplists:get_value(<<"latitude">>, Val), proplists:get_value(<<"longitude">>, Val), undefined, undefined}}};
       (_) -> false
     end,
     Data).

@@ -59,8 +59,8 @@ get_user(Req) ->
     {Login, Pin} -> 
       UserAuth = report_config:get_config(auth, []),
       AuthLogin = proplists:get_value(login, UserAuth, none),
-      AuthPin = proplists:get_value(pin, UserAuth, none),
-      case {Login, Pin} of
+      AuthPin = proplists:get_value(password, UserAuth, none),
+      case {binary_to_list(Login), binary_to_list(Pin)} of
         {AuthLogin, AuthPin} -> {Login, Pin};
         _ -> not_found
       end;

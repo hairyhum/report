@@ -2,3 +2,6 @@ config:
   postgres:
     password: "danniill"
     dbname: "baton_report"
+  auth:
+    login: "foo"
+    password: "bar"
