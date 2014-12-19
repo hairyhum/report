@@ -24,7 +24,9 @@ start(_StartType, _StartArgs) ->
     {'_', [],[
       {[<<"action">>, client_id, action, item_id], [], action_handler, []},
       {[<<"device">>, client_id], [], device_handler, []},
-      {[<<"info">>, <<"actions">>, action], [], action_info_handler, []}
+      {[<<"info">>, <<"actions">>, action], [], action_info_handler, []},
+      {[<<"info">>, <<"group">>, <<"time">>, action, interval], [], time_info_handler, []},
+      {[<<"info">>, <<"group">>, <<"location">>, action, distance], [], distance_info_handler, []}
     ]}
   ],
   SupStarted = report_sup:start_link(),
