@@ -25,13 +25,5 @@ show_info(Req, State) ->
     _ -> ok
   end,
   Interval = binary_to_integer(IntervalBin),
-% select array_aggr(title) from items_added group by list_id, round(time / 60000);
-  {ok, Titles} = db:fetch_multiple_columns_by(
-    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, [], 
-    [{group_by, [list_id, {call, round, [{time, '/', Interval}]}]}]),
-  AssociatingTitles = lists:map(
-    fun(Item) ->
-      proplists:get_value(titles, Item)
-    end,
-    Titles),
-  req:reply(200, json:format(AssociatingTitles), Req, State).
+  Titles = action_info:time_info(Action, Interval),
+  req:reply(200, json:format(Titles), Req, State).

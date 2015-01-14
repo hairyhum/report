@@ -24,19 +24,8 @@ show_info(Req, State) ->
     {_,undefined} -> req:reply(404, Req, State);
     _ -> ok
   end,
-  Distance = binary_to_integer(DistanceBin),
-  GridStep = get_grid_step(Distance),
-% select array_aggr(title) from items_added group_by ST_SnapToGrid(location)
-  {ok, Titles} = db:fetch_multiple_columns_by(
-    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, [], 
-    [{group_by, [{call, 'ST_SnapToGrid', [location, GridStep]}]}]),
-  AssociatingTitles = lists:map(
-    fun(Item) ->
-      proplists:get_value(titles, Item)
-    end,
-    Titles),
-  req:reply(200, json:format(AssociatingTitles), Req, State).
+  Distance = binary_to_integer(DistanceBin),  
+  Titles = action_info:distance_info(Action, Distance),
+  req:reply(200, json:format(Titles), Req, State).
 
 
-get_grid_step(Distance) ->
-  Distance / 111.

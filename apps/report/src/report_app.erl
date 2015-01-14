@@ -24,7 +24,7 @@ start(_StartType, _StartArgs) ->
     {'_', [],[
       {[<<"action">>, client_id, action, item_id], [], action_handler, []},
       {[<<"device">>, client_id], [], device_handler, []},
-      {[<<"info">>, <<"actions">>, action], [], action_info_handler, []},
+      {[<<"info">>, <<"actions">>, action], [], action_info_handler, []},  % GET params 'date_from', 'date_to'
       {[<<"info">>, <<"group">>, <<"time">>, action, interval], [], time_info_handler, []},
       {[<<"info">>, <<"group">>, <<"location">>, action, distance], [], distance_info_handler, []}
     ]}

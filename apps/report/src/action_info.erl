@@ -1,6 +1,6 @@
 -module(action_info).
 
--export([date_info/2]).
+-export([date_info/2, time_info/2, distance_info/2]).
 
 -spec date_info(binary(), {integer(), integer()}) -> [{atom(), term()}].
 date_info(Action, {DateFrom, DateTo}) ->
@@ -71,7 +71,29 @@ get_action_info(Item) ->
     ].
 
 
+time_info(Action, Interval) ->
+% select array_aggr(title) from items_added group by list_id, round(time / 60000);
+  {ok, Titles} = db:fetch_multiple_columns_by(
+    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, [], 
+    [{group_by, [list_id, {call, round, [{time, '/', Interval}]}]}]),
+  lists:map(
+    fun(Item) ->
+      proplists:get_value(titles, Item)
+    end,
+    Titles).
 
+distance_info(Action, Distance) ->
+  GridStep = get_grid_step(Distance),
+% select array_aggr(title) from items_added group_by ST_SnapToGrid(location)
+  {ok, Titles} = db:fetch_multiple_columns_by(
+    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, [], 
+    [{group_by, [{call, 'ST_SnapToGrid', [location, GridStep]}]}]),
+  lists:map(
+    fun(Item) ->
+      proplists:get_value(titles, Item)
+    end,
+    Titles).
 
-
+get_grid_step(Distance) ->
+  Distance / 111.
 
