@@ -10,6 +10,7 @@ handle(Req, State) ->
   {Method, _} = cowboy_req:method(Req),
   case Method of
     <<"GET">> -> show_info(Req, State);
+    <<"OPTIONS">> -> req:reply(204, Req, State);
     _ -> req:reply(405, Req, State)
   end.
 

@@ -1,6 +1,6 @@
 -module(action_info).
 
--export([date_info/2, time_info/2, distance_info/2]).
+-export([date_info/2, time_info/2, distance_info/3]).
 
 -spec date_info(binary(), {integer(), integer()}) -> [{atom(), term()}].
 date_info(Action, {DateFrom, DateTo}) ->
@@ -82,11 +82,13 @@ time_info(Action, Interval) ->
     end,
     Titles).
 
-distance_info(Action, Distance) ->
+distance_info(Action, Distance, {{MinLat, MinLong}, {MaxLat, MaxLong}}) ->
   GridStep = get_grid_step(Distance),
 % select array_aggr(title) from items_added group_by ST_SnapToGrid(location)
+  LineString = iolist_to_binary(["LINESTRING(", float_to_list(MinLat), " ", float_to_list(MinLong), ",", float_to_list(MaxLat), " ", float_to_list(MaxLong), ")"]),
   {ok, Titles} = db:fetch_multiple_columns_by(
-    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, [], 
+    {action:table(Action), [{{call, array_agg, [title]}, as, titles}]}, 
+    [{location, '&&', {call, 'ST_Envelope', [{cast, LineString, as, geometry}]}}], 
     [{group_by, [{call, 'ST_SnapToGrid', [location, GridStep]}]}]),
   lists:map(
     fun(Item) ->

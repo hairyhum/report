@@ -26,7 +26,7 @@ start(_StartType, _StartArgs) ->
       {[<<"device">>, client_id], [], device_handler, []},
       {[<<"info">>, <<"actions">>, action], [], action_info_handler, []},  % GET params 'date_from', 'date_to'
       {[<<"info">>, <<"group">>, <<"time">>, action, interval], [], time_info_handler, []},
-      {[<<"info">>, <<"group">>, <<"location">>, action, distance], [], distance_info_handler, []}
+      {[<<"info">>, <<"group">>, <<"location">>, action, distance], [], distance_info_handler, []} % GET params 'min_lat', 'max_lat', 'min_long', 'max_long'
     ]}
   ],
   SupStarted = report_sup:start_link(),
